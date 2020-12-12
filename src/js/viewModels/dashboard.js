@@ -1,48 +1,55 @@
-/**
- * @license
- * Copyright (c) 2014, 2020, Oracle and/or its affiliates.
- * Licensed under The Universal Permissive License (UPL), Version 1.0
- * as shown at https://oss.oracle.com/licenses/upl/
- * @ignore
- */
-/*
- * Your dashboard ViewModel code goes here
- */
-define(['accUtils',
-        'knockout',
-        'jquery',
-        'ojs/ojarraydataprovider',
-        'ojs/ojlabel',
-        'ojs/ojselectsingle',
-        'ojs/ojchart',
-        'ojs/ojlistview'
-      ],
- function(accUtils, ko, $ ,ArrayDataProvider) {
-    function DashboardViewModel() {
-      /**
-       * Optional ViewModel method invoked after the View is inserted into the
-       * document DOM.  The application can put logic that requires the DOM being
-       * attached here.
-       * This method might be called multiple times - after the View is created
-       * and inserted into the DOM and after the View is reconnected
-       * after being disconnected.
-       */
-      var self = this;
+define(
+  ['accUtils',
+   'knockout',
+   'jquery',
+   'ojs/ojarraydataprovider',
+   'ojs/ojhtmlutils',
+   'ojs/ojresponsiveutils',
+   'ojs/ojresponsiveknockoututils',
+   'ojs/ojlabel',
+   'ojs/ojselectsingle',
+   'ojs/ojchart',
+   'ojs/ojlistview',
+   'ojs/ojmodule-element'
+  ],
+  function (accUtils, ko, $, ArrayDataProvider, HtmlUtils, ResponsiveUtils, ResponsiveKnockoutUtils) {
 
+    function DashboardViewModel() {
+      var self = this;
+       
+      /**
+       *  Declare Activity List observables and read data from JSON file
+       */
       var url = "js/store_data.json";  //defines link to local data file
+
       self.activityDataProvider = ko.observable();  //gets data for Activities list
 
+      // Get local data from file using jQuery method and method to return a Promise
       $.getJSON(url).then(function(data) {
-        // Create variable for Activities list and populate using key attribute fetch
-        var activitiesArray = data;
-        self.activityDataProvider(new ArrayDataProvider(activitiesArray, { keyAttributes: 'id' }));
+         // Create variable for Activities list and populate using key attribute fetch
+         var activitiesArray = data;
+         self.activityDataProvider(new ArrayDataProvider(activitiesArray, { keyAttributes: 'id' }));
         }
       );
-  
+
+      /**
+       * Declare selection list observables and provide values
+       */
+
+      // chart type values array and ArrayDataProvider observable
       var types = [
         { value: 'pie', label: 'Pie' },
         { value: 'bar', label: 'Bar' }
       ];
+
+      self.chartTypes = new ArrayDataProvider(types, { keyAttributes: 'value' });
+
+      // chart selection observable and default value
+      self.val = ko.observable("pie");
+
+      /**
+       * Declare chart observables and add the static data
+       */
 
       // chart data array and  ArrayDataProvider observable
       var chartData = [
@@ -56,13 +63,81 @@ define(['accUtils',
         { "id": 7, "series": "Soccer", "group": "Group B", "value": 46 }
       ];
 
-      self.chartTypes = new ArrayDataProvider(types, { keyAttributes: 'value' });
       self.chartDataProvider = new ArrayDataProvider(chartData, { keyAttributes: 'id' });
 
-      // chart selection observable and default value
-      self.val = ko.observable("pie");
+      /** 
+       *  Define the oj-module inline template for Activity Items list
+       */
+      // Display this content for large and extra large screen sizes
+      var lg_xl_view = '<h3><oj-label for="itemsList">Activity Items</oj-label></h3>' +
+        '<oj-list-view style="font-size: 18px">' +
+        '<ul>' +
+        '<li>' +
+        '<div class="oj-flex-item">' +
+        '<p>SureCatch Baseball Glove</p>' +
+        '<p>Western R16 Helmet</p>' +
+        '<p>Western C1 Helmet</p>' +
+        '<p>Western Bat</p>' +
+        '</div>' +
+        '</li>' +
+        '<li>' +
+        '<div class="oj-flex-item">' +
+        '<p>Air-Lift Tire Pump</p>' +
+        '<p>Intact Bike Helmet</p>' +
+        '<p>Nimbus Bike Tire</p>' +
+        '<p>Refill Water Bottle</p>' +
+        '<p>Swift Boys 21 Speed</p>' +
+        '</div>' +
+        '</li>' +
+        '</ul>' +
+        '</oj-list-view>'
+
+      // Display this content for small and medium screen sizes
+      var sm_md_view = '<div id="sm_md" style="background-color:lightcyan; padding: 10px; font-size: 10px">' +
+        '<h3><oj-label for="itemsList">Activity Items</oj-label></h3>' +
+        '<oj-list-view style="font-size: 18px">' +
+        '<ul>' +
+        '<li>' +
+        '<div class="oj-flex-item">' +
+        '<p>SureCatch Baseball Glove</p>' +
+        '<p>Western R16 Helmet</p>' +
+        '<p>Western C1 Helmet</p>' +
+        '<p>Western Bat</p>' +
+        '</div>' +
+        '</li>' +
+        '</ul>' +
+        '</oj-list-view>'
+        '</div>';
+
+      // Identify the screen size and display the content for that screen size
+      var lgQuery = ResponsiveUtils.getFrameworkQuery(ResponsiveUtils.FRAMEWORK_QUERY_KEY.LG_UP);
+
+      self.large = ResponsiveKnockoutUtils.createMediaQueryObservable(lgQuery);
+      self.moduleConfig = ko.pureComputed(function () {
+        var viewNodes = HtmlUtils.stringToNodeArray(self.large() ? lg_xl_view : sm_md_view);
+        return { view: viewNodes };
+      });
+
+      /**
+       * End of oj-module code
+       */
+
       
-      this.connected = () => {
+      /**
+       * This section is standard navdrawer starter template code
+       */ 
+      // Below are a set of the ViewModel methods invoked by the oj-module component.
+      // Please reference the oj-module jsDoc for additional information.
+
+      /**
+       * Optional ViewModel method invoked after the View is inserted into the
+       * document DOM.  The application can put logic that requires the DOM being
+       * attached here. 
+       * This method might be called multiple times - after the View is created 
+       * and inserted into the DOM and after the View is reconnected 
+       * after being disconnected.
+       */
+      self.connected = function () {
         accUtils.announce('Dashboard page loaded.', 'assertive');
         document.title = "Dashboard";
         // Implement further logic if needed
@@ -71,7 +146,7 @@ define(['accUtils',
       /**
        * Optional ViewModel method invoked after the View is disconnected from the DOM.
        */
-      this.disconnected = () => {
+      self.disconnected = function () {
         // Implement if needed
       };
 
@@ -79,16 +154,16 @@ define(['accUtils',
        * Optional ViewModel method invoked after transition to the new View is complete.
        * That includes any possible animation between the old and the new View.
        */
-      this.transitionCompleted = () => {
+      self.transitionCompleted = function () {
         // Implement if needed
       };
     }
 
-    /*
-     * Returns an instance of the ViewModel providing one instance of the ViewModel. If needed,
-     * return a constructor for the ViewModel so that the ViewModel is constructed
-     * each time the view is displayed.
-     */
-    return DashboardViewModel;
+      /*
+       * Returns a constructor for the ViewModel so that the ViewModel is constructed
+       * each time the view is displayed.  Return an instance of the ViewModel if
+       * only one instance of the ViewModel is needed.
+       */
+      return new DashboardViewModel();
   }
 );

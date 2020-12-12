@@ -1,8 +1,6 @@
 <div class="oj-hybrid-padding">
   <h1>Product Information</h1>
-  <!-- The border and color highlights the outer container -->
   <div class="oj-flex oj-flex-init oj-panel oj-panel-alt4">
-  <!-- The border and color highlights the Activities container -->  
     <div class="oj-flex-item oj-sm-only-text-align-end oj-md-4 oj-sm-12 oj-panel oj-panel-alt1">
       <h3><oj-label for="activitiesList">Activities</oj-label></h3>
       <oj-list-view id="activitiesList" style="font-size: 18px" data="[[activityDataProvider]]">
@@ -13,14 +11,15 @@
             </strong>
           </div>
         </template>
-      </oj-list-view>
+      </oj-list-view> 
     </div>
-    <!-- The border and color highlights the outer container -->  
-    <div class="oj-flex oj-flex-item oj-flex-items-pad oj-panel oj-panel-alt2">
-      <div class="oj-flex-item">
+    <div class="oj-flex oj-flex-item oj-flex-items-pad oj-md-8 oj-sm-12 oj-panel oj-panel-alt2">
+      <div class="oj-flex-item oj-md-6 oj-sm-12">
+        <div id="container">
+          <oj-module config='[[moduleConfig]]'></oj-module>
+        </div>
       </div>
-      <!-- The border and color highlights the container -->  
-      <div class="oj-flex-item oj-panel oj-panel-alt3">
+      <div class="oj-flex-item oj-md-6 oj-sm-12 oj-panel oj-panel-alt3">
         <h3><oj-label for="basicSelect">Item Details</oj-label></h3>
         <hr style="margin-top:12px;">
         <oj-label for="basicSelect">Select Chart:</oj-label>
